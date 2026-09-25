@@ -9,24 +9,41 @@ import { Label } from "@/components/ui/label"
 const BETA_ENDPOINT =
   "https://script.google.com/macros/s/AKfycbypaL_bdykA5s6uALRwOQ0ENVwbQ7s9A4bBLQC2iCoSTKNsOiIXvlyCv0FsNena-FDr/exec"
 
-type Status = "idle" | "loading" | "success" | "duplicate" | "error"
+type Status = "idle" | "loading" | "success" | "duplicate" | "invalid" | "error"
 
 export function BetaForm() {
   const [status, setStatus] = useState<Status>("idle")
   const [email, setEmail] = useState("")
 
+  // Basic email format validation before hitting the network.
+  function isValidEmail(value: string) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!email || status === "loading") return
+
+    // Ignore submits while a request is already in flight.
+    if (status === "loading") return
+
+    // Reject empty or malformed addresses without contacting the endpoint.
+    const trimmed = email.trim()
+    if (!isValidEmail(trimmed)) {
+      setStatus("invalid")
+      return
+    }
+
     setStatus("loading")
 
     try {
+      // Send the address to the Google Apps Script endpoint as JSON.
       const res = await fetch(BETA_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, source: "Landing page" }),
+        body: JSON.stringify({ email: trimmed }),
       })
 
+      // Apps Script may return plain text or JSON; read it defensively.
       const raw = await res.text()
       let payload: Record<string, unknown> = {}
       try {
@@ -49,25 +66,30 @@ export function BetaForm() {
 
       if (isDuplicate) {
         setStatus("duplicate")
+        setEmail("")
       } else if (isError) {
         setStatus("error")
       } else {
+        // Success: clear the field and show the confirmation message.
         setStatus("success")
         setEmail("")
       }
     } catch {
+      // Network failure or unreachable endpoint — surface a clear error.
       setStatus("error")
     }
   }
 
   const feedback =
     status === "success"
-      ? { tone: "success" as const, text: "Merci ! Votre place pour la bêta est réservée." }
+      ? { tone: "success" as const, text: "Merci ! Vous êtes inscrit à la liste d'attente." }
       : status === "duplicate"
-        ? { tone: "success" as const, text: "Vous êtes déjà inscrit à la bêta 😊" }
-        : status === "error"
-          ? { tone: "error" as const, text: "Une erreur est survenue. Merci de réessayer." }
-          : null
+        ? { tone: "success" as const, text: "Vous êtes déjà inscrit à la liste d'attente." }
+        : status === "invalid"
+          ? { tone: "error" as const, text: "Merci de saisir une adresse e-mail valide." }
+          : status === "error"
+            ? { tone: "error" as const, text: "Une erreur est survenue. Merci de réessayer." }
+            : null
 
   return (
     <section id="beta" className="mx-auto max-w-6xl px-6 py-20 md:py-28">
