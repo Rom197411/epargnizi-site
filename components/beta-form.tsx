@@ -36,11 +36,15 @@ export function BetaForm() {
     setStatus("loading")
 
     try {
-      // Send the address to the Google Apps Script endpoint as JSON.
+      // Send as URL-encoded form data to avoid a CORS preflight request.
+      const body = new URLSearchParams({
+        email: trimmed,
+        source: "Site internet",
+      })
+
       const res = await fetch(BETA_ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: trimmed }),
+        body,
       })
 
       // Apps Script may return plain text or JSON; read it defensively.
