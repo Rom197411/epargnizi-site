@@ -28,7 +28,7 @@ export function Hero() {
           </div>
 
           <h1 className="mt-6 text-balance text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl md:text-[3.5rem]">
-            Bienvenue sur Epargnizi.{" "}
+            Epargnizi.{" "}
             <span className="bg-gradient-to-r from-primary to-indigo-500 bg-clip-text text-transparent">
               Construisez l&apos;épargne
             </span>{" "}
@@ -47,7 +47,7 @@ export function Hero() {
               size="lg"
               className="group h-12 rounded-full px-7 text-base shadow-soft"
             >
-              Rejoindre la bêta
+              Rejoindre l'aventure
               <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Button>
             <Button
@@ -63,12 +63,7 @@ export function Hero() {
 
           <div className="mt-8 flex items-center justify-center gap-6 text-sm text-muted-foreground lg:justify-start">
             <div className="flex items-center gap-2">
-              <span className="flex -space-x-2">
-                {["bg-primary", "bg-indigo-400", "bg-sky-400"].map((c) => (
-                  <span key={c} className={`h-6 w-6 rounded-full border-2 border-white ${c}`} />
-                ))}
-              </span>
-              <span>+2 000 sur la liste d&apos;attente</span>
+              
             </div>
           </div>
         </div>
