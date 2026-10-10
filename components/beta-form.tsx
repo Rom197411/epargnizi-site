@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 const BETA_ENDPOINT =
-  "https://script.google.com/macros/s/AKfycbwgCuGJ-kKQlNYMqBg7r60mM44fiuHVDuHC8iCy4eLQdeqLwrKB8f0cCkd-0PQqgOFEdw/exec"
+  "https://script.google.com/macros/s/AKfycbxp0JEv3YUOcL0Wims6pGIelV0emz39KPxgASpjHQgPpQM9D-is-HylH1CIGdO6M7zxxA/exec"
 
 type Status = "idle" | "loading" | "success" | "duplicate" | "invalid" | "error"
 
