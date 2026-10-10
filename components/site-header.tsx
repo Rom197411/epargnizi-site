@@ -39,7 +39,7 @@ export function SiteHeader() {
             Se connecter
           </Link>
           <Button render={<Link href="/#beta" />} nativeButton={false} size="sm" className="rounded-full">
-            Rejoindre la bêta
+            Créer mon compte
           </Button>
         </div>
       </div>
