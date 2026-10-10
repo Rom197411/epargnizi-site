@@ -109,10 +109,10 @@ export function BetaForm() {
 
         <div className="relative mx-auto max-w-xl text-center">
           <h2 className="text-balance text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            Rejoignez la bêta d&apos;Epargnizi
+            Prenez le contrôle de votre budget.
           </h2>
           <p className="mt-4 text-pretty text-lg text-white/80">
-            Soyez parmi les premiers à tester l&apos;application et à façonner l&apos;avenir de votre épargne.
+            Analysez vos finances, suivez vos dépenses et construisez une épargne durable grâce à une méthode simple et efficace.
           </p>
 
           <form onSubmit={handleSubmit} className="mx-auto mt-8 max-w-md">
@@ -127,7 +127,7 @@ export function BetaForm() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="vous@exemple.com"
+                  placeholder="Votre adresse e-mail"
                   className="h-12 border-white/30 bg-white/95 text-base text-neutral-900 placeholder:text-neutral-400 focus-visible:ring-white"
                 />
               </div>
@@ -143,7 +143,7 @@ export function BetaForm() {
                     Inscription…
                   </>
                 ) : (
-                  "Rejoindre la bêta"
+                  "Créer mon compte"
                 )}
               </Button>
             </div>
@@ -171,7 +171,7 @@ export function BetaForm() {
               </div>
             ) : (
               <p className="mt-3 text-xs text-white/70">
-                Gratuit pendant la bêta. Aucune carte requise. Désinscription en un clic.
+                Sécurisé • Sans engagement • Vos données restent confidentielles
               </p>
             )}
           </form>
