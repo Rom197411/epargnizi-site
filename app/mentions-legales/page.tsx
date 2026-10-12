@@ -36,7 +36,7 @@ export default function MentionsLegalesPage() {
         <section className="space-y-4">
           <h2 className="text-2xl font-semibold tracking-tight text-foreground">2. Directeur de la publication</h2>
           <p>Le directeur de la publication est :</p>
-          <p className="font-medium text-foreground">Romain Kerrouault</p>
+          <p className="font-medium text-foreground">Marcel Kerrouault</p>
         </section>
 
         <section className="space-y-4">
