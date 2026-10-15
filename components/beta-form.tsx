@@ -87,7 +87,7 @@ export function BetaForm() {
   const feedback =
     status === "success"
       ? { tone: "success" as const, text: "Un e-mail de confirmation a été envoyé.
-Vérifiez votre boîte de réception (et vos spams) pour retrouver le message envoyé depuis noreply@epargnizi.fr, puis cliquez sur le lien afin d'activer votre accès." }
+        Vérifiez votre boîte de réception (et vos spams) pour retrouver le message envoyé depuis noreply@epargnizi.fr, puis cliquez sur le lien afin d'activer votre accès." }
       : status === "duplicate"
         ? { tone: "success" as const, text: "Vous êtes déjà inscrit à la liste d'attente." }
         : status === "invalid"
