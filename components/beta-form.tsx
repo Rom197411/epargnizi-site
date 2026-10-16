@@ -15,6 +15,7 @@ export function BetaForm() {
   const [status, setStatus] = useState<Status>("idle")
   const [email, setEmail] = useState("")
 
+  // Basic email format validation before hitting the network.
   function isValidEmail(value: string) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
   }
@@ -22,8 +23,10 @@ export function BetaForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
+    // Ignore submits while a request is already in flight.
     if (status === "loading") return
 
+    // Reject empty or malformed addresses without contacting the endpoint.
     const trimmed = email.trim()
 
     if (!isValidEmail(trimmed)) {
@@ -40,86 +43,109 @@ export function BetaForm() {
         source: "Site internet",
       })
 
+      console.log("========== INSCRIPTION BETA ==========")
+      console.log("Endpoint :", BETA_ENDPOINT)
+      console.log("Email :", trimmed)
+
       const res = await fetch(BETA_ENDPOINT, {
         method: "POST",
         body,
       })
 
+      console.log("Status HTTP :", res.status)
+      console.log("OK :", res.ok)
+
       const raw = await res.text()
 
-      console.log("========== EPARGNIZI ==========")
-      console.log("HTTP :", res.status)
-      console.log("Réponse brute :", raw)
+      console.log("Réponse brute :")
+      console.log(raw)
 
-      let payload: any = {}
+      let payload: Record<string, unknown> = {}
 
       try {
         payload = JSON.parse(raw)
+        console.log("JSON :")
+        console.log(payload)
       } catch {
-        payload = {}
+        console.log("Réponse non JSON")
       }
 
-      console.log("Payload :", payload)
+      const signal =
+        `${payload.result ?? ""} ${payload.status ?? ""} ${payload.message ?? ""} ${raw}`
+          .toLowerCase()
 
-      if (!res.ok) {
-        console.error("Erreur HTTP")
-        setStatus("error")
-        return
-      }
+      console.log("Signal :", signal)
 
-      if (payload.success === true) {
-        console.log("Succès détecté")
-        setStatus("success")
-        setEmail("")
-        return
-      }
+      const isDuplicate =
+        signal.includes("duplicate") ||
+        signal.includes("already") ||
+        signal.includes("exist") ||
+        signal.includes("déjà")
 
-      if (
-        typeof payload.message === "string" &&
-        payload.message.toLowerCase().includes("déjà")
-      ) {
-        console.log("Utilisateur déjà inscrit")
+      const isError =
+        !res.ok ||
+        signal.includes("error") ||
+        signal.includes("erreur") ||
+        signal.includes("fail")
+
+      console.log("isDuplicate =", isDuplicate)
+      console.log("isError =", isError)
+
+      if (isDuplicate) {
+
+        console.log("Etat final : DUPLICATE")
+
         setStatus("duplicate")
         setEmail("")
-        return
+
+      } else if (isError) {
+
+        console.log("Etat final : ERROR")
+
+        setStatus("error")
+
+      } else {
+
+        console.log("Etat final : SUCCESS")
+
+        setStatus("success")
+        setEmail("")
       }
 
-      console.error("Réponse inattendue :", payload)
-
-      setStatus("error")
+      console.log("========== FIN ==========")
 
     } catch (err) {
 
-      console.error("Exception :", err)
+      console.error("ERREUR FETCH")
+      console.error(err)
 
       setStatus("error")
-
     }
   }
 
   const feedback =
-    status === "success"
+        status === "success"
       ? {
           tone: "success" as const,
           text:
             "Un e-mail de confirmation a été envoyé. Vérifiez votre boîte de réception (et vos spams) pour retrouver le message envoyé depuis noreply@epargnizi.fr, puis cliquez sur le lien afin d'activer votre accès.",
         }
       : status === "duplicate"
-      ? {
-          tone: "success" as const,
-          text: "Vous êtes déjà inscrit à la liste d'attente.",
-        }
-      : status === "invalid"
-      ? {
-          tone: "error" as const,
-          text: "Merci de saisir une adresse e-mail valide.",
-        }
-      : status === "error"
-      ? {
-          tone: "error" as const,
-          text: "Une erreur est survenue. Merci de réessayer.",
-        }
-      : null
+        ? {
+            tone: "success" as const,
+            text: "Vous êtes déjà inscrit à la liste d'attente.",
+          }
+        : status === "invalid"
+          ? {
+              tone: "error" as const,
+              text: "Merci de saisir une adresse e-mail valide.",
+            }
+          : status === "error"
+            ? {
+                tone: "error" as const,
+                text: "Une erreur est survenue. Merci de réessayer.",
+              }
+            : null
 
   return (
     <section id="beta" className="mx-auto max-w-6xl px-6 py-20 md:py-28">
