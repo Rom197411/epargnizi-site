@@ -15,7 +15,6 @@ export function BetaForm() {
   const [status, setStatus] = useState<Status>("idle")
   const [email, setEmail] = useState("")
 
-  // Basic email format validation before hitting the network.
   function isValidEmail(value: string) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
   }
@@ -23,11 +22,10 @@ export function BetaForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
-    // Ignore submits while a request is already in flight.
     if (status === "loading") return
 
-    // Reject empty or malformed addresses without contacting the endpoint.
     const trimmed = email.trim()
+
     if (!isValidEmail(trimmed)) {
       setStatus("invalid")
       return
@@ -36,7 +34,7 @@ export function BetaForm() {
     setStatus("loading")
 
     try {
-      // Send as URL-encoded form data to avoid a CORS preflight request.
+
       const body = new URLSearchParams({
         email: trimmed,
         source: "Site internet",
@@ -47,53 +45,81 @@ export function BetaForm() {
         body,
       })
 
-      // Apps Script may return plain text or JSON; read it defensively.
       const raw = await res.text()
-      let payload: Record<string, unknown> = {}
+
+      console.log("========== EPARGNIZI ==========")
+      console.log("HTTP :", res.status)
+      console.log("Réponse brute :", raw)
+
+      let payload: any = {}
+
       try {
         payload = JSON.parse(raw)
       } catch {
         payload = {}
       }
 
-      const signal = `${payload.result ?? ""} ${payload.status ?? ""} ${payload.message ?? ""} ${raw}`
-        .toLowerCase()
+      console.log("Payload :", payload)
 
-      const isDuplicate =
-        signal.includes("duplicate") ||
-        signal.includes("already") ||
-        signal.includes("exist") ||
-        signal.includes("déjà")
-
-      const isError =
-        !res.ok || signal.includes("error") || signal.includes("erreur") || signal.includes("fail")
-
-      if (isDuplicate) {
-        setStatus("duplicate")
-        setEmail("")
-      } else if (isError) {
+      if (!res.ok) {
+        console.error("Erreur HTTP")
         setStatus("error")
-      } else {
-        // Success: clear the field and show the confirmation message.
+        return
+      }
+
+      if (payload.success === true) {
+        console.log("Succès détecté")
         setStatus("success")
         setEmail("")
+        return
       }
-    } catch {
-      // Network failure or unreachable endpoint — surface a clear error.
+
+      if (
+        typeof payload.message === "string" &&
+        payload.message.toLowerCase().includes("déjà")
+      ) {
+        console.log("Utilisateur déjà inscrit")
+        setStatus("duplicate")
+        setEmail("")
+        return
+      }
+
+      console.error("Réponse inattendue :", payload)
+
       setStatus("error")
+
+    } catch (err) {
+
+      console.error("Exception :", err)
+
+      setStatus("error")
+
     }
   }
 
   const feedback =
     status === "success"
-      ? { tone: "success" as const, text: "Un e-mail de confirmation a été envoyé. Vérifiez votre boîte de réception (et vos spams) pour retrouver le message envoyé depuis noreply@epargnizi.fr, puis cliquez sur le lien afin d'activer votre accès." }
+      ? {
+          tone: "success" as const,
+          text:
+            "Un e-mail de confirmation a été envoyé. Vérifiez votre boîte de réception (et vos spams) pour retrouver le message envoyé depuis noreply@epargnizi.fr, puis cliquez sur le lien afin d'activer votre accès.",
+        }
       : status === "duplicate"
-        ? { tone: "success" as const, text: "Vous êtes déjà inscrit à la liste d'attente." }
-        : status === "invalid"
-          ? { tone: "error" as const, text: "Merci de saisir une adresse e-mail valide." }
-          : status === "error"
-            ? { tone: "error" as const, text: "Une erreur est survenue. Merci de réessayer." }
-            : null
+      ? {
+          tone: "success" as const,
+          text: "Vous êtes déjà inscrit à la liste d'attente.",
+        }
+      : status === "invalid"
+      ? {
+          tone: "error" as const,
+          text: "Merci de saisir une adresse e-mail valide.",
+        }
+      : status === "error"
+      ? {
+          tone: "error" as const,
+          text: "Une erreur est survenue. Merci de réessayer.",
+        }
+      : null
 
   return (
     <section id="beta" className="mx-auto max-w-6xl px-6 py-20 md:py-28">
@@ -111,6 +137,7 @@ export function BetaForm() {
           <h2 className="text-balance text-3xl font-semibold tracking-tight text-white sm:text-4xl">
             Prenez le contrôle de votre budget.
           </h2>
+
           <p className="mt-4 text-pretty text-lg text-white/80">
             Analysez vos finances, suivez vos dépenses et construisez une épargne durable grâce à une méthode simple et efficace.
           </p>
@@ -121,6 +148,7 @@ export function BetaForm() {
                 <Label htmlFor="email" className="sr-only">
                   Adresse e-mail
                 </Label>
+
                 <Input
                   id="email"
                   type="email"
@@ -131,6 +159,7 @@ export function BetaForm() {
                   className="h-12 border-white/30 bg-white/95 text-base text-neutral-900 placeholder:text-neutral-400 focus-visible:ring-white"
                 />
               </div>
+
               <Button
                 type="submit"
                 size="lg"
@@ -153,12 +182,16 @@ export function BetaForm() {
                 role="status"
                 aria-live="polite"
                 className={`mt-4 flex items-center justify-center gap-3 rounded-2xl px-5 py-3 text-left text-sm font-medium backdrop-blur ${
-                  feedback.tone === "success" ? "bg-white/15 text-white" : "bg-red-500/20 text-white"
+                  feedback.tone === "success"
+                    ? "bg-white/15 text-white"
+                    : "bg-red-500/20 text-white"
                 }`}
               >
                 <span
                   className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
-                    feedback.tone === "success" ? "bg-white text-primary" : "bg-white text-red-600"
+                    feedback.tone === "success"
+                      ? "bg-white text-primary"
+                      : "bg-white text-red-600"
                   }`}
                 >
                   {feedback.tone === "success" ? (
@@ -167,6 +200,7 @@ export function BetaForm() {
                     <AlertCircle className="h-4 w-4" />
                   )}
                 </span>
+
                 <span>{feedback.text}</span>
               </div>
             ) : (
