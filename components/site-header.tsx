@@ -33,7 +33,7 @@ export function SiteHeader() {
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <Link
-  href="https://script.google.com/macros/s/AKfycbylXVYFvArcXK-NkqhOQkroMV6y9QSs8PCwJ-SareHUyXghkUWm5gjDIgZ2XTvGDWjL/exec?utm_source=chatgpt.com"
+  href="https://script.google.com/macros/s/AKfycbyjdTj_a1fe03gpSEw-U_F06uip6vMHhRYUIkEcSJ5eTSVhsfak9K3KtUb19nUkNh1OIQ/exec"
   target="_blank"
   rel="noopener noreferrer"
   className="whitespace-nowrap text-xs font-medium text-muted-foreground transition-colors hover:text-foreground sm:text-sm"
